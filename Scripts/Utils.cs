@@ -268,8 +268,13 @@ namespace M8.Noise {
             0.0337884f, -0.979891f, -0.196654f, 0.0f
           };
 
+        /// Square root of 3.
+        public const float SQRT_3 = 1.7320508075688772935f;
+
         /// <summary>
-        /// Converts the polar (latitude, longitude) to cartesian (x,y,z)
+        /// Converts the polar angles in degree (latitude, longitude) to cartesian (x,y,z)
+        /// lat must range from -90 to +90.
+        /// lon must range from -180 to +180.
         /// </summary>
         public static void LatLonToXYZ(float lat, float lon, out float x, out float y, out float z) {
             float latRad = Mathf.Deg2Rad*lat;
