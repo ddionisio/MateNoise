@@ -36,7 +36,7 @@ namespace M8.Noise.Module {
     public class Curve : ModuleBase {
         public override int sourceModuleCount { get { return 1; } }
 
-        public AnimationCurve curve { get { return mCurve; } set { mCurve = value; } }
+        public AnimationCurve curve { get { return mCurve; } }
 
         public bool normalizeSourceValue; //if true, value is converted from [-1, 1] to [0, 1]
         
@@ -49,6 +49,12 @@ namespace M8.Noise.Module {
             return mCurve.Evaluate(val);
         }
 
-        private AnimationCurve mCurve = new AnimationCurve();
+        private AnimationCurve mCurve;
+
+        public Curve() : base() { mCurve = new AnimationCurve(); }
+
+        public Curve(AnimationCurve _curve) : base() { mCurve = _curve; }
+
+        public Curve(ModuleBase src, AnimationCurve _curve) : base() { mSourceModules[0] = src; mCurve = _curve; }
     }
 }

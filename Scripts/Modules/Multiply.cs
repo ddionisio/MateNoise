@@ -30,5 +30,8 @@ namespace M8.Noise.Module {
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(x, y, z)*mSourceModules[1].GetValue(x, y, z);
         }
+
+        public Multiply() : base() { }
+        public Multiply(ModuleBase lhs, ModuleBase rhs) : base() { mSourceModules[0] = lhs; mSourceModules[1] = rhs; }
     }
 }

@@ -56,5 +56,8 @@ namespace M8.Noise.Module {
             float alpha = mSourceModules[2].GetValue(x, y, z);
             return Interpolate.Linear(v0, v1, alpha);
         }
+
+        public Blend() : base() { }
+        public Blend(ModuleBase lhs, ModuleBase rhs, ModuleBase ctrl) : base() { mSourceModules[0] = lhs; mSourceModules[1] = rhs; mSourceModules[2] = ctrl; }
     }
 }

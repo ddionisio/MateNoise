@@ -63,5 +63,7 @@ namespace M8.Noise.Module {
             float nearestDist = Mathf.Min(distFromSmallerSphere, distFromLargerSphere);
             return 1.0f - nearestDist*4.0f; // Puts it in the -1.0 to +1.0 range.
         }
+
+        public Spheres(float freq = 1.0f) : base() { frequency = freq; }
     }
 }

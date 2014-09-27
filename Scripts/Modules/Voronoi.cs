@@ -153,5 +153,13 @@ namespace M8.Noise.Module {
               (int)(Mathf.FloorToInt(yCandidate)),
               (int)(Mathf.FloorToInt(zCandidate)));
         }
+
+        public Voronoi(int _seed = 0, float _displacement = 1.0f, float _frequency = 1.0f, bool _enableDistance = false)
+            : base() {
+                seed = _seed;
+                displacement = _displacement;
+                frequency = _frequency;
+                enableDistance = _enableDistance;
+        }
     }
 }

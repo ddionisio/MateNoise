@@ -48,5 +48,9 @@ namespace M8.Noise.Module {
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(x, y, z)*scale + bias;
         }
+
+        public ScaleBias() : base() { }
+
+        public ScaleBias(ModuleBase src, float _scale = 1.0f, float _bias = 0.0f) : base() { mSourceModules[0] = src; scale = _scale; bias = _bias; }
     }
 }

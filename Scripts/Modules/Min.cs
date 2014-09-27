@@ -34,5 +34,8 @@ namespace M8.Noise.Module {
             float v1 = mSourceModules[1].GetValue(x, y, z);
             return Mathf.Min(v0, v1);
         }
+
+        public Min() : base() { }
+        public Min(ModuleBase m0, ModuleBase m1) : base() { mSourceModules[0] = m0; mSourceModules[1] = m1; }
     }
 }

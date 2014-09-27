@@ -157,6 +157,10 @@ namespace M8.Noise.Module {
             return mSourceModules[0].GetValue(xDistort, yDistort, zDistort);
         }
 
+        public Turbulence() : base() { }
+
+        public Turbulence(ModuleBase src) : base() { mSourceModules[0] = src; }
+
         protected Perlin mXDistortModule = new Perlin();
         protected Perlin mYDistortModule = new Perlin();
         protected Perlin mZDistortModule = new Perlin();

@@ -176,6 +176,16 @@ namespace M8.Noise.Module {
             return value;
         }
 
+        public Perlin(int _seed = 0, float _frequency = 1.0f, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
+            : base() {
+                seed = _seed;
+                frequency = _frequency;
+                lacunarity = _lacunarity;
+                octaveCount = _octave;
+                persistence = _persistence;
+                quality = _quality;
+        }
+
         private int mOctaveCount = 6;
     }
 }
