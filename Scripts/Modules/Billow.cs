@@ -60,11 +60,6 @@ namespace M8.Noise.Module {
         /// </summary>
         public float persistence = 0.5f;
 
-        /// <summary>
-        /// The seed value used by the billowy-noise function.
-        /// </summary>
-        public int seed = 0;
-
         public override float GetValue(float x, float y, float z) {
             float value = 0.0f;
             float signal = 0.0f;
@@ -78,7 +73,7 @@ namespace M8.Noise.Module {
             for(int curOctave = 0; curOctave < mOctaveCount; curOctave++) {
                 // Get the coherent-noise value from the input value and add it to the
                 // final result.
-                _seed = (seed + curOctave) & 0xffffffff;
+                _seed = (Global.randomSeed + curOctave) & 0xffffffff;
                 signal = Generate.GradientCoherent3D(x, y, z, (int)_seed, quality);
                 signal = 2.0f * Mathf.Abs(signal) - 1.0f;
                 value += signal * curPersistence;
@@ -94,9 +89,8 @@ namespace M8.Noise.Module {
             return value;
         }
 
-        public Billow(int _seed = 0, float _frequency = 1.0f, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
+        public Billow(float _frequency = 1.0f, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
             : base() {
-                seed = _seed;
                 frequency = _frequency;
                 lacunarity = _lacunarity;
                 octaveCount = _octave;

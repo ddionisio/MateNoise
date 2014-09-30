@@ -40,5 +40,15 @@ namespace M8.Noise.Module {
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(x*scale.x, y*scale.y, z*scale.z);
         }
+
+        public ScalePoint() : base() { }
+
+        public ScalePoint(Vector3 _scale) : base() { scale = _scale; }
+
+        public ScalePoint(float s = 1.0f) : base() { scale = new Vector3(s, s, s); }
+
+        public ScalePoint(ModuleBase src, float s = 1.0f) : base() { scale = new Vector3(s, s, s); mSourceModules[0] = src; }
+
+        public ScalePoint(ModuleBase src, Vector3 _scale) : base() { scale = _scale; mSourceModules[0] = src; }
     }
 }

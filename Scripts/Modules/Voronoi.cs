@@ -80,13 +80,6 @@ namespace M8.Noise.Module {
         /// </summary>
         public float frequency = 1.0f;
 
-        /// <summary>
-        /// The positions of the seed values are calculated by a
-        /// coherent-noise function.  By modifying the seed value, the output
-        /// of that function changes.
-        /// </summary>
-        public int seed = 0;
-
         public override float GetValue(float x, float y, float z) {
             // This method could be more efficient by caching the seed values.  Fix
             // later.
@@ -113,9 +106,9 @@ namespace M8.Noise.Module {
 
                         // Calculate the position and distance to the seed point inside of
                         // this unit cube.
-                        float xPos = xCur + Generate.Value3D(xCur, yCur, zCur, seed);
-                        float yPos = yCur + Generate.Value3D(xCur, yCur, zCur, seed + 1);
-                        float zPos = zCur + Generate.Value3D(xCur, yCur, zCur, seed + 2);
+                        float xPos = xCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed);
+                        float yPos = yCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed + 1);
+                        float zPos = zCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed + 2);
                         float xDist = xPos - x;
                         float yDist = yPos - y;
                         float zDist = zPos - z;
@@ -154,9 +147,8 @@ namespace M8.Noise.Module {
               (int)(Mathf.FloorToInt(zCandidate)));
         }
 
-        public Voronoi(int _seed = 0, float _displacement = 1.0f, float _frequency = 1.0f, bool _enableDistance = false)
+        public Voronoi(float _displacement = 1.0f, float _frequency = 1.0f, bool _enableDistance = false)
             : base() {
-                seed = _seed;
                 displacement = _displacement;
                 frequency = _frequency;
                 enableDistance = _enableDistance;

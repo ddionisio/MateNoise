@@ -6,6 +6,46 @@ namespace M8.Noise.Builder {
         public bool seamless = false;
         public Bounds bounds;
 
+        public void BuildPartialBegin() {
+            destMap.SetSize(destWidth, destHeight, destDepth);
+        }
+
+        public void BuildPartial(int subX, int subY, int subZ, int subWidth, int subHeight, int subDepth) {
+            Vector3 destSize = new Vector3(destWidth, destHeight, destDepth);
+            Vector3 boundMin = bounds.min;
+            Vector3 boundSize = bounds.size;
+            Vector3 delta = new Vector3(boundSize.x/destSize.x, boundSize.y/destSize.y, boundSize.z/destSize.z);
+            Vector3 curPos = Vector3.zero;
+
+            curPos.y = boundMin.y + delta.y*(float)subY;
+            for(int y = 0; y < subHeight; y++) {
+                curPos.x = boundMin.z + delta.z*(float)subZ;
+                for(int z = subZ; z < subDepth; z++) {
+                    curPos.x = boundMin.x + delta.x*(float)subX;
+                    for(int x = subX; x < subWidth; x++) {
+                        float val;
+
+                        if(seamless) {
+                            float botValue = GetCornerValues(curPos.x, curPos.y, curPos.z, boundMin.x, boundMin.z, boundSize.x, boundSize.z);
+                            float topValue = GetCornerValues(curPos.x, curPos.y + boundSize.y, curPos.z, boundMin.x, boundMin.z, boundSize.x, boundSize.z);
+                            float yBlend = 1.0f - (y - boundMin.y)/boundSize.y;
+                            val = Mathf.Lerp(botValue, topValue, yBlend);
+                        }
+                        else {
+                            val = module.GetValue(curPos);
+                        }
+
+                        destMap.Set(x, y, z, val);
+                        curPos.x += delta.x;
+                    }
+
+                    curPos.z += delta.z;
+                }
+
+                curPos.y += delta.y;
+            }
+        }
+
         public override void Build() {
             destMap.SetSize(destWidth, destHeight, destDepth);
 

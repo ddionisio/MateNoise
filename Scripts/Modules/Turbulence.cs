@@ -110,24 +110,6 @@ namespace M8.Noise.Module {
             }
         }
 
-        /// <summary>
-        /// Internally, there are three noise::module::Perlin noise modules
-        /// that displace the input value; one for the x, one for the y,
-        /// and one for the z coordinate.  This noise module assigns the
-        /// following seed values to the noise::module::Perlin noise modules:
-        /// - It assigns the seed value (seed + 0) to the x noise module.
-        /// - It assigns the seed value (seed + 1) to the y noise module.
-        /// - It assigns the seed value (seed + 2) to the z noise module.
-        /// </summary>
-        public int seed {
-            get { return mXDistortModule.seed; }
-            set {
-                mXDistortModule.seed = value;
-                mYDistortModule.seed = value + 1;
-                mZDistortModule.seed = value + 2;
-            }
-        }
-
         public override float GetValue(float x, float y, float z) {
             // Get the values from the three noise::module::Perlin noise modules and
             // add each value to each coordinate of the input value.  There are also
@@ -157,12 +139,16 @@ namespace M8.Noise.Module {
             return mSourceModules[0].GetValue(xDistort, yDistort, zDistort);
         }
 
-        public Turbulence() : base() { }
+        public Turbulence() : base() {
+            mXDistortModule = new Perlin();
+            mYDistortModule = new Perlin(); mYDistortModule.seedOffset = 1;
+            mZDistortModule = new Perlin(); mZDistortModule.seedOffset = 2;
+        }
 
         public Turbulence(ModuleBase src) : base() { mSourceModules[0] = src; }
 
-        protected Perlin mXDistortModule = new Perlin();
-        protected Perlin mYDistortModule = new Perlin();
-        protected Perlin mZDistortModule = new Perlin();
+        protected Perlin mXDistortModule;
+        protected Perlin mYDistortModule;
+        protected Perlin mZDistortModule;
     }
 }

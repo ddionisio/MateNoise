@@ -110,12 +110,6 @@ namespace M8.Noise.Module {
         public Quality quality = Quality.Cubic;
 
         /// <summary>
-        /// Sets the seed value used by the ridged-multifractal-noise
-        /// function.
-        /// </summary>
-        public int seed = 0;
-
-        /// <summary>
         /// The number of octaves controls the amount of detail in the ridged-multifractal noise.
         /// </summary>
         public int octaveCount {
@@ -145,7 +139,7 @@ namespace M8.Noise.Module {
             for(int curOctave = 0; curOctave < mOctaveCount; curOctave++) {
 
                 // Get the coherent-noise value.
-                int _seed = (seed + curOctave) & 0x7fffffff;
+                int _seed = (Global.randomSeed + curOctave) & 0x7fffffff;
                 signal = Generate.GradientCoherent3D(x, y, z, _seed, quality);
 
                 // Make the ridges.
