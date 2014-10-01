@@ -19,7 +19,7 @@ namespace M8.Noise.Builder {
 
             curPos.y = boundMin.y + delta.y*(float)subY;
             for(int y = 0; y < subHeight; y++) {
-                curPos.x = boundMin.z + delta.z*(float)subZ;
+                curPos.z = boundMin.z + delta.z*(float)subZ;
                 for(int z = subZ; z < subDepth; z++) {
                     curPos.x = boundMin.x + delta.x*(float)subX;
                     for(int x = subX; x < subWidth; x++) {

@@ -270,6 +270,7 @@ namespace M8.Noise {
 
         /// Square root of 3.
         public const float SQRT_3 = 1.7320508075688772935f;
+        public const float SQRT_2 = 1.4142135623730950488f;
 
         /// <summary>
         /// Converts the polar angles in degree (latitude, longitude) to cartesian (x,y,z)

@@ -47,7 +47,7 @@ namespace M8.Noise.Builder {
             Vector2 curPos = boundMin;
 
             for(int y = 0; y < destHeight; y++) {
-                curPos.y = boundMin.y;
+                curPos.x = boundMin.x;
                 for(int x = 0; x < destWidth; x++) {
                     float val;
 
