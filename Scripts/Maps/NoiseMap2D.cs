@@ -12,6 +12,8 @@ namespace M8.Noise.Map {
             }
         }
 
+        public float[,] data { get { return mData; } }
+
         public void Set(int x, int y, float value) {
             mData[x, y] = value;
         }
