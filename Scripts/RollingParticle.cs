@@ -2,31 +2,41 @@
 using System.Collections;
 
 namespace M8.Noise {
+    [System.Serializable]
     public class RollingParticle {
-        public int startXBias;
-        public int startYBias;
-        public int life;
-        public int population;
+        public enum Area {
+            Square,
+            Circle
+        }
 
-        public int width { get { return mWidth; } }
-        public int height { get { return mHeight; } }
+        public int width = 100;
+        public int height = 100;
+
+        public Area spawnArea = Area.Square;
+        public float spawnOffsetScale = 0.75f;
+
+        public int life = 50;
+        public int population = 4000;
+
+        public bool autoNormalize = true;
+        public float normalizeValue = 256.0f; //if autoNormalize is false
 
         public float Sample(int x, int y) {
             return mMap[x, y];
         }
 
         public float SampleScaled(int x, int y, int destWidth, int destHeight) {
-            if(destWidth == mWidth && destHeight == mHeight)
+            if(destWidth == width && destHeight == height)
                 return Sample(x, y);
 
-            float _x = x*((float)mWidth/(float)destWidth);
-            float _y = y*((float)mHeight/(float)destHeight);
+            float _x = x*((float)width/(float)destWidth);
+            float _y = y*((float)height/(float)destHeight);
 
             int x0 = Mathf.FloorToInt(_x);
-            int x1 = Mathf.Clamp(x0+1, 0, mWidth-1);
+            int x1 = Mathf.Clamp(x0+1, 0, width-1);
 
             int y0 = Mathf.FloorToInt(_y);
-            int y1 = Mathf.Clamp(y0+1, 0, mHeight-1);
+            int y1 = Mathf.Clamp(y0+1, 0, height-1);
 
             float xt = _x - (float)x0;
             float yt = _y - (float)y0;
@@ -37,20 +47,15 @@ namespace M8.Noise {
             return Mathf.Lerp(top, bottom, yt);
         }
 
-        public void SetSize(int width, int height) {
-            mWidth = width;
-            mHeight = height;
-        }
-
         public void Generate() {
-            mMap = new float[mWidth, mHeight];    
+            mMap = new float[width, height];    
 
             float maxValue = 0f;
-
+                        
             //start rolling
             for(int i = 0; i < population; i++) {
-                int x = Random.Range(startXBias, mWidth-startXBias);
-                int y = Random.Range(startYBias, mHeight-startYBias);
+                int x, y;
+                GetParticleStart(out x, out y);
 
                 for(int j = 0; j < life; j++) {
                     float val = mMap[x, y] += 1.0f;
@@ -61,34 +66,59 @@ namespace M8.Noise {
                 }
             }
 
-            if(maxValue > 0f) //should be greater than 0 at this point
-                Normalize(maxValue);
+            if(autoNormalize) {
+                if(maxValue > 0f) //should be greater than 0 at this point
+                    Normalize(maxValue);
+            }
+            else {
+                if(normalizeValue > 0f)
+                    Normalize(normalizeValue);
+            }
         }
 
-        public RollingParticle(int width, int height, int _startXBias, int _startYBias, int _life, int _population) {
-            SetSize(width, height);
+        public RollingParticle() { }
 
-            startXBias = _startXBias;
-            startYBias = _startYBias;
+        public RollingParticle(int _width, int _height, Area _spawnArea, float _spawnOffsetScale, int _life, int _population) {
+            width = _width;
+            height = _height;
+            spawnArea = _spawnArea;
+            spawnOffsetScale = _spawnOffsetScale;
             life = _life;
             population = _population;
+        }
+
+        void GetParticleStart(out int x, out int y) {
+            switch(spawnArea) {
+                case Area.Circle:
+                    float hw = width*0.5f, hh = height*0.5f;
+                    Vector2 pos = new Vector2(hw, hh) + Random.insideUnitCircle*(spawnOffsetScale*Mathf.Min(hw, hh));
+                    x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
+                    y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
+                    break;
+
+                default:
+                    x = Random.Range(Mathf.RoundToInt((1.0f-spawnOffsetScale)*width), Mathf.RoundToInt(spawnOffsetScale*width));
+                    y = Random.Range(Mathf.RoundToInt((1.0f-spawnOffsetScale)*height), Mathf.RoundToInt(spawnOffsetScale*height));
+                    break;
+            }
         }
                 
         void PickNeighbor(int x, int y, out int adjX, out int adjY) {
             float val = mMap[x, y];
 
-            mNeighborPickCount = 0;
+            Dir[] mNeighborPicks = new Dir[4];
+            int neighborPickCount = 0;
 
             //west
-            if(x > 0 && mMap[x-1, y] <= val) { mNeighborPicks[mNeighborPickCount] = Dir.West; mNeighborPickCount++; }
+            if(x > 0 && mMap[x-1, y] <= val) { mNeighborPicks[neighborPickCount] = Dir.West; neighborPickCount++; }
             //east
-            if(x < mWidth-1 && mMap[x+1, y] <= val) { mNeighborPicks[mNeighborPickCount] = Dir.East; mNeighborPickCount++; }
+            if(x < width-1 && mMap[x+1, y] <= val) { mNeighborPicks[neighborPickCount] = Dir.East; neighborPickCount++; }
             //north
-            if(y > 0 && mMap[x, y-1] <= val) { mNeighborPicks[mNeighborPickCount] = Dir.North; mNeighborPickCount++; }
+            if(y > 0 && mMap[x, y-1] <= val) { mNeighborPicks[neighborPickCount] = Dir.North; neighborPickCount++; }
             //south
-            if(y < mHeight-1 && mMap[x, y+1] <= val) { mNeighborPicks[mNeighborPickCount] = Dir.South; mNeighborPickCount++; }
+            if(y < height-1 && mMap[x, y+1] <= val) { mNeighborPicks[neighborPickCount] = Dir.South; neighborPickCount++; }
 
-            Dir nextDir = mNeighborPickCount > 0 ? mNeighborPicks[Random.Range(0, mNeighborPickCount)] : Dir.Invalid;
+            Dir nextDir = neighborPickCount > 0 ? mNeighborPicks[Random.Range(0, neighborPickCount)] : Dir.Invalid;
 
             switch(nextDir) {
                 case Dir.North:
@@ -110,8 +140,8 @@ namespace M8.Noise {
         }
         
         void Normalize(float maxValue) {
-            for(int y = 0; y < mHeight; y++) {
-                for(int x = 0; x < mWidth; x++) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
                     mMap[x, y] /= maxValue;
                 }
             }
@@ -127,11 +157,5 @@ namespace M8.Noise {
         }
 
         private float[,] mMap;
-
-        private int mWidth;
-        private int mHeight;
-
-        private Dir[] mNeighborPicks = new Dir[4];
-        private int mNeighborPickCount;
     }
 }
