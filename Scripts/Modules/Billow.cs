@@ -89,7 +89,9 @@ namespace M8.Noise.Module {
             return value;
         }
 
-        public Billow(float _frequency = 1.0f, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
+        public Billow() : base() { }
+
+        public Billow(float _frequency, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
             : base() {
                 frequency = _frequency;
                 lacunarity = _lacunarity;

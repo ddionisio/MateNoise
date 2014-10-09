@@ -173,7 +173,9 @@ namespace M8.Noise.Module {
             return value;
         }
 
-        public Perlin(float _frequency = 1.0f, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
+        public Perlin() : base() { }
+
+        public Perlin(float _frequency, float _lacunarity = 2.0f, int _octave = 6, float _persistence = 0.5f, Quality _quality = Quality.Cubic)
             : base() {
                 frequency = _frequency;
                 lacunarity = _lacunarity;

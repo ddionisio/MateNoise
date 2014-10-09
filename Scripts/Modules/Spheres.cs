@@ -64,6 +64,8 @@ namespace M8.Noise.Module {
             return 1.0f - nearestDist*4.0f; // Puts it in the -1.0 to +1.0 range.
         }
 
-        public Spheres(float freq = 1.0f) : base() { frequency = freq; }
+        public Spheres() : base() { }
+
+        public Spheres(float freq) : base() { frequency = freq; }
     }
 }

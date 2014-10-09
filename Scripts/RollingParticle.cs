@@ -25,7 +25,7 @@ namespace M8.Noise {
             return mMap[x, y];
         }
 
-        public float SampleScaled(int x, int y, int destWidth, int destHeight) {
+        public float SampleScaled(int x, int y, int destWidth, int destHeight, Quality quality = Quality.Cubic) {
             if(destWidth == width && destHeight == height)
                 return Sample(x, y);
 
@@ -38,8 +38,25 @@ namespace M8.Noise {
             int y0 = Mathf.FloorToInt(_y);
             int y1 = Mathf.Clamp(y0+1, 0, height-1);
 
-            float xt = _x - (float)x0;
-            float yt = _y - (float)y0;
+            float xt=0f, yt=0f;
+            switch(quality) {
+                case Quality.Linear:
+                    xt = _x - (float)x0;
+                    yt = _y - (float)y0;
+                    break;
+                case Quality.Cosine:
+                    xt = Interpolate.CurveCos(_x - (float)x0);
+                    yt = Interpolate.CurveCos(_y - (float)y0);
+                    break;
+                case Quality.Cubic:
+                    xt = Interpolate.CurveCubic(_x - (float)x0);
+                    yt = Interpolate.CurveCubic(_y - (float)y0);
+                    break;
+                case Quality.Quint:
+                    xt = Interpolate.CurveQuint(_x - (float)x0);
+                    yt = Interpolate.CurveQuint(_y - (float)y0);
+                    break;
+            }
 
             float top = Mathf.Lerp(mMap[x0, y0], mMap[x1, y0], xt);
             float bottom = Mathf.Lerp(mMap[x0, y1], mMap[x1, y1], xt);

@@ -37,14 +37,9 @@ namespace M8.Noise.Module {
         public override int sourceModuleCount { get { return 1; } }
 
         public AnimationCurve curve { get { return mCurve; } }
-
-        public bool normalizeSourceValue; //if true, value is converted from [-1, 1] to [0, 1]
         
         public override float GetValue(float x, float y, float z) {
             float val = mSourceModules[0].GetValue(x, y, z);
-
-            if(normalizeSourceValue)
-                val = (val+1.0f)*0.5f;
 
             return mCurve.Evaluate(val);
         }
