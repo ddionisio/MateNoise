@@ -60,6 +60,8 @@ namespace M8.Noise.Module {
         /// </summary>
         public float persistence = 0.5f;
 
+        public int seedOffset = 0;
+
         public override float GetValue(float x, float y, float z) {
             float value = 0.0f;
             float signal = 0.0f;
@@ -73,7 +75,7 @@ namespace M8.Noise.Module {
             for(int curOctave = 0; curOctave < mOctaveCount; curOctave++) {
                 // Get the coherent-noise value from the input value and add it to the
                 // final result.
-                _seed = (Global.randomSeed + curOctave) & 0xffffffff;
+                _seed = (Global.randomSeed + seedOffset + curOctave) & 0xffffffff;
                 signal = Generate.GradientCoherent3D(x, y, z, (int)_seed, quality);
                 signal = 2.0f * Mathf.Abs(signal) - 1.0f;
                 value += signal * curPersistence;

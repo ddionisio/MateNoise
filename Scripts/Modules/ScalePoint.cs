@@ -37,6 +37,14 @@ namespace M8.Noise.Module {
 
         public Vector3 scale = Vector3.one;
 
+        public string rotateParam {
+            set {
+                //format: x, y, z
+                string[] axis = value.Split(',');
+                scale = new Vector3(System.Convert.ToSingle(axis[0].Trim()), System.Convert.ToSingle(axis[1].Trim()), System.Convert.ToSingle(axis[2].Trim()));
+            }
+        }
+
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(x*scale.x, y*scale.y, z*scale.z);
         }

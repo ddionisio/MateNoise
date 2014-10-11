@@ -39,6 +39,14 @@ namespace M8.Noise.Module {
 
         public Quaternion rotation = Quaternion.identity;
 
+        public string rotateParam {
+            set {
+                //format: x, y, z
+                string[] axis = value.Split(',');
+                rotation = Quaternion.Euler(System.Convert.ToSingle(axis[0].Trim()), System.Convert.ToSingle(axis[1].Trim()), System.Convert.ToSingle(axis[2].Trim()));
+            }
+        }
+
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(rotation*new Vector3(x, y, z));
         }

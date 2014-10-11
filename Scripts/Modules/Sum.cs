@@ -6,7 +6,9 @@ namespace M8.Noise.Module {
     /// This is a convenience for adding a series of modules, rather than having to deal with Add.
     /// </summary>
     public class Sum : ModuleBase {
-        public override int sourceModuleCount { get { return mCount; } }
+        public new int sourceModuleCount { get { return mCount; } set { if(mCount != value) { mSourceModules = new ModuleBase[mCount = value]; } } }
+
+        public Sum() : base() { } //ensure you set sourceModuleCount before getting values
 
         public Sum(int _count)
             : base() {

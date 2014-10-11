@@ -38,6 +38,14 @@ namespace M8.Noise.Module {
 
         public Vector3 translate = Vector3.zero;
 
+        public string translateParam {
+            set {
+                //format: x, y, z
+                string[] axis = value.Split(',');
+                translate = new Vector3(System.Convert.ToSingle(axis[0].Trim()), System.Convert.ToSingle(axis[1].Trim()), System.Convert.ToSingle(axis[2].Trim()));
+            }
+        }
+
         public override float GetValue(float x, float y, float z) {
             return mSourceModules[0].GetValue(x+translate.x, y+translate.y, z+translate.z);
         }

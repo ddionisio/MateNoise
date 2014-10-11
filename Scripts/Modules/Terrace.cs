@@ -64,6 +64,21 @@ namespace M8.Noise.Module {
         public bool invert = false;
 
         /// <summary>
+        /// Use for deserialization.
+        /// </summary>
+        public string pointParams {
+            set {
+                ClearControlPoints();
+
+                //0, 1...
+                char[] delims = new char[] { ',' };
+                string[] vals = value.Split(delims, System.StringSplitOptions.RemoveEmptyEntries);
+                for(int i = 0; i < vals.Length; i++)
+                    AddControlPoint(System.Convert.ToSingle(vals[i].Trim()));
+            }
+        }
+
+        /// <summary>
         /// Adds a control point to the terrace-forming curve.
         ///
         /// NOTE: No two control points have the same value.
