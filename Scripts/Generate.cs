@@ -21,6 +21,7 @@ using UnityEngine;
 
 namespace M8.Noise {
     public enum Quality {
+        Nearest,
         Linear,
         Cosine, //slightly less curvy than cubic, but with better performance
         Cubic,

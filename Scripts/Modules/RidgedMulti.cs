@@ -141,7 +141,7 @@ namespace M8.Noise.Module {
             for(int curOctave = 0; curOctave < mOctaveCount; curOctave++) {
 
                 // Get the coherent-noise value.
-                int _seed = (Global.randomSeed + seedOffset + curOctave) & 0x7fffffff;
+                int _seed = (Globals.randomSeed + seedOffset + curOctave) & 0x7fffffff;
                 signal = Generate.GradientCoherent3D(x, y, z, _seed, quality);
 
                 // Make the ridges.

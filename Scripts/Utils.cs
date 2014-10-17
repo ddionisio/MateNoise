@@ -324,5 +324,51 @@ namespace M8.Noise {
 
             return (Instance)dynMethod.CreateDelegate(typeof(Instance));
         }
+
+        public static float SampleDim(float[,] data, int x, int y, int dimWidth, int dimHeight, Quality quality = Quality.Cubic) {
+            return SampleScaled(data, x, y, ((float)data.GetLength(0)/(float)dimWidth), ((float)data.GetLength(1)/(float)dimHeight), quality);
+        }
+
+        public static float SampleScaled(float[,] data, int x, int y, float sX, float sY, Quality quality = Quality.Cubic) {
+            if(sX == 1.0f && sY == 1.0f)
+                return data[x, y];
+
+            int width = data.GetLength(0);
+            int height = data.GetLength(1);
+
+            float _x = x*sX;
+            float _y = y*sY;
+
+            int x0 = Mathf.FloorToInt(_x);
+            int x1 = Mathf.Clamp(x0+1, 0, width-1);
+
+            int y0 = Mathf.FloorToInt(_y);
+            int y1 = Mathf.Clamp(y0+1, 0, height-1);
+
+            float xt=0f, yt=0f;
+            switch(quality) {
+                case Quality.Linear:
+                    xt = _x - (float)x0;
+                    yt = _y - (float)y0;
+                    break;
+                case Quality.Cosine:
+                    xt = Interpolate.CurveCos(_x - (float)x0);
+                    yt = Interpolate.CurveCos(_y - (float)y0);
+                    break;
+                case Quality.Cubic:
+                    xt = Interpolate.CurveCubic(_x - (float)x0);
+                    yt = Interpolate.CurveCubic(_y - (float)y0);
+                    break;
+                case Quality.Quint:
+                    xt = Interpolate.CurveQuint(_x - (float)x0);
+                    yt = Interpolate.CurveQuint(_y - (float)y0);
+                    break;
+            }
+
+            float top = Mathf.Lerp(data[x0, y0], data[x1, y0], xt);
+            float bottom = Mathf.Lerp(data[x0, y1], data[x1, y1], xt);
+
+            return Mathf.Lerp(top, bottom, yt);
+        }
     }
 }

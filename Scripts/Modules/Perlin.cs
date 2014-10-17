@@ -159,7 +159,7 @@ namespace M8.Noise.Module {
 
                 // Get the coherent-noise value from the input value and add it to the
                 // final result.
-                _seed = (Global.randomSeed + seedOffset + curOctave) & 0xffffffff;
+                _seed = (Globals.randomSeed + seedOffset + curOctave) & 0xffffffff;
                 signal = Generate.GradientCoherent3D(x, y, z, (int)_seed, quality);
                 value += signal * curPersistence;
 

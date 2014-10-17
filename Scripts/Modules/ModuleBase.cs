@@ -20,12 +20,6 @@
 using UnityEngine;
 
 namespace M8.Noise.Module {
-    public struct Global {
-        public static int randomSeed { get { return mSeed; } set { mSeed = value; } }
-
-        private static int mSeed;
-    }
-
     /// Abstract base class for noise modules.
     ///
     /// A <i>noise module</i> is an object that calculates and outputs a value

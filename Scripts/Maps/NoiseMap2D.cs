@@ -24,43 +24,12 @@ namespace M8.Noise.Map {
             }
         }
 
-        public float SampleScaled(int x, int y, int destWidth, int destHeight, Quality quality = Quality.Cubic) {
-            if(destWidth == width && destHeight == height)
-                return mData[x, y];
+        public float SampleDim(int x, int y, int dimWidth, int dimHeight, Quality quality = Quality.Cubic) {
+            return Utils.SampleDim(mData, x, y, dimWidth, dimHeight, quality);
+        }
 
-            float _x = x*((float)width/(float)destWidth);
-            float _y = y*((float)height/(float)destHeight);
-
-            int x0 = Mathf.FloorToInt(_x);
-            int x1 = Mathf.Clamp(x0+1, 0, width-1);
-
-            int y0 = Mathf.FloorToInt(_y);
-            int y1 = Mathf.Clamp(y0+1, 0, height-1);
-
-            float xt=0f, yt=0f;
-            switch(quality) {
-                case Quality.Linear:
-                    xt = _x - (float)x0;
-                    yt = _y - (float)y0;
-                    break;
-                case Quality.Cosine:
-                    xt = Interpolate.CurveCos(_x - (float)x0);
-                    yt = Interpolate.CurveCos(_y - (float)y0);
-                    break;
-                case Quality.Cubic:
-                    xt = Interpolate.CurveCubic(_x - (float)x0);
-                    yt = Interpolate.CurveCubic(_y - (float)y0);
-                    break;
-                case Quality.Quint:
-                    xt = Interpolate.CurveQuint(_x - (float)x0);
-                    yt = Interpolate.CurveQuint(_y - (float)y0);
-                    break;
-            }
-                        
-            float top = Mathf.Lerp(mData[x0, y0], mData[x1, y0], xt);
-            float bottom = Mathf.Lerp(mData[x0, y1], mData[x1, y1], xt);
-
-            return Mathf.Lerp(top, bottom, yt);
+        public float SampleScaled(int x, int y, float sX, float sY, Quality quality = Quality.Cubic) {
+            return Utils.SampleScaled(mData, x, y, sX, sY, quality);
         }
 
         private float[,] mData;

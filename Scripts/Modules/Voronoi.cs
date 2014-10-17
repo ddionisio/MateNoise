@@ -108,9 +108,9 @@ namespace M8.Noise.Module {
 
                         // Calculate the position and distance to the seed point inside of
                         // this unit cube.
-                        float xPos = xCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed + seedOffset);
-                        float yPos = yCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed + seedOffset + 1);
-                        float zPos = zCur + Generate.Value3D(xCur, yCur, zCur, Global.randomSeed + seedOffset + 2);
+                        float xPos = xCur + Generate.Value3D(xCur, yCur, zCur, Globals.randomSeed + seedOffset);
+                        float yPos = yCur + Generate.Value3D(xCur, yCur, zCur, Globals.randomSeed + seedOffset + 1);
+                        float zPos = zCur + Generate.Value3D(xCur, yCur, zCur, Globals.randomSeed + seedOffset + 2);
                         float xDist = xPos - x;
                         float yDist = yPos - y;
                         float zDist = zPos - z;

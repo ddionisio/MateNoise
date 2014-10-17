@@ -13,84 +13,78 @@ namespace M8.Noise {
         public int height = 100;
 
         public Area spawnArea = Area.Square;
-        public float spawnOffsetScale = 0.75f;
+        public bool spawnOutside = false;
+        public float spawnAreaScale = 0.75f;
+        public float spawnAreaOuterScale = 0.1f;
 
         public int life = 50;
         public int population = 4000;
 
-        public bool autoNormalize = true;
-        public float normalizeValue = 256.0f; //if autoNormalize is false
+        public float valueInc = 1.0f;
+        public float valueMax = 256.0f;
+        public bool valueAutoMax = false; //if this is true, valueCapToMax is forced to false, valueMax is set to highest value after build
+        public bool valueCapToMax = true;
+        
+        public float[,] Generate() {
+            if(valueAutoMax)
+                valueCapToMax = false;
 
-        public float Sample(int x, int y) {
-            return mMap[x, y];
-        }
+            float[,] map = new float[width, height];
+    
+            //fill inner area if spawning outside
+            if(spawnOutside) {
+                float hw = width*0.5f, hh = height*0.5f;
+                int minX = Mathf.RoundToInt(hw - spawnAreaScale*hw), maxX = Mathf.RoundToInt(hw + spawnAreaScale*width); if(maxX >= width) maxX = width - 1;
+                int minY = Mathf.RoundToInt(hh - spawnAreaScale*hh), maxY = Mathf.RoundToInt(hh + spawnAreaScale*height); if(maxY >= height) maxY = height - 1;
 
-        public float SampleScaled(int x, int y, int destWidth, int destHeight, Quality quality = Quality.Cubic) {
-            if(destWidth == width && destHeight == height)
-                return Sample(x, y);
-
-            float _x = x*((float)width/(float)destWidth);
-            float _y = y*((float)height/(float)destHeight);
-
-            int x0 = Mathf.FloorToInt(_x);
-            int x1 = Mathf.Clamp(x0+1, 0, width-1);
-
-            int y0 = Mathf.FloorToInt(_y);
-            int y1 = Mathf.Clamp(y0+1, 0, height-1);
-
-            float xt=0f, yt=0f;
-            switch(quality) {
-                case Quality.Linear:
-                    xt = _x - (float)x0;
-                    yt = _y - (float)y0;
-                    break;
-                case Quality.Cosine:
-                    xt = Interpolate.CurveCos(_x - (float)x0);
-                    yt = Interpolate.CurveCos(_y - (float)y0);
-                    break;
-                case Quality.Cubic:
-                    xt = Interpolate.CurveCubic(_x - (float)x0);
-                    yt = Interpolate.CurveCubic(_y - (float)y0);
-                    break;
-                case Quality.Quint:
-                    xt = Interpolate.CurveQuint(_x - (float)x0);
-                    yt = Interpolate.CurveQuint(_y - (float)y0);
-                    break;
+                switch(spawnArea) {
+                    case Area.Circle:
+                        float size = Mathf.Min(hw, hh);
+                        float r = spawnAreaScale*size;
+                        Vector2 center = new Vector2(hw, hh);
+                        for(int y = minY; y <= maxY; y++) {
+                            for(int x = minX; x <= maxX; x++) {
+                                Vector2 d = new Vector2(x - center.x, y - center.y);
+                                if(d.sqrMagnitude <= r*r)
+                                    map[x, y] = valueMax;
+                            }
+                        }
+                        break;
+                    case Area.Square:
+                        for(int y = minY; y <= maxY; y++) {
+                            for(int x = minX; x <= maxX; x++) {
+                                map[x, y] = valueMax;
+                            }
+                        }
+                        break;
+                }
             }
-
-            float top = Mathf.Lerp(mMap[x0, y0], mMap[x1, y0], xt);
-            float bottom = Mathf.Lerp(mMap[x0, y1], mMap[x1, y1], xt);
-
-            return Mathf.Lerp(top, bottom, yt);
-        }
-
-        public void Generate() {
-            mMap = new float[width, height];    
-
-            float maxValue = 0f;
-                        
+            
             //start rolling
             for(int i = 0; i < population; i++) {
                 int x, y;
                 GetParticleStart(out x, out y);
 
                 for(int j = 0; j < life; j++) {
-                    float val = mMap[x, y] += 1.0f;
-                    if(val > maxValue)
-                        maxValue = val;
+                    float val = map[x, y];
+                    if(!valueCapToMax || val < valueMax) {
+                        val += valueInc;
+                        if(valueCapToMax && val > valueMax)
+                            val = valueMax;
 
-                    PickNeighbor(x, y, out x, out y);
+                        map[x, y] = val;
+
+                        if(valueAutoMax && val > valueMax)
+                            valueMax = val;
+                    }
+
+                    PickNeighbor(map, x, y, out x, out y);
                 }
             }
 
-            if(autoNormalize) {
-                if(maxValue > 0f) //should be greater than 0 at this point
-                    Normalize(maxValue);
-            }
-            else {
-                if(normalizeValue > 0f)
-                    Normalize(normalizeValue);
-            }
+            Normalize(map, valueMax);
+
+            return map;
         }
 
         public RollingParticle() { }
@@ -99,7 +93,7 @@ namespace M8.Noise {
             width = _width;
             height = _height;
             spawnArea = _spawnArea;
-            spawnOffsetScale = _spawnOffsetScale;
+            spawnAreaScale = _spawnOffsetScale;
             life = _life;
             population = _population;
         }
@@ -107,33 +101,88 @@ namespace M8.Noise {
         void GetParticleStart(out int x, out int y) {
             switch(spawnArea) {
                 case Area.Circle:
-                    float hw = width*0.5f, hh = height*0.5f;
-                    Vector2 pos = new Vector2(hw, hh) + Random.insideUnitCircle*(spawnOffsetScale*Mathf.Min(hw, hh));
-                    x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
-                    y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
+                    if(spawnOutside) {
+                        float hw = width*0.5f, hh = height*0.5f;
+                        float size = Mathf.Min(hw, hh);
+                        float r = spawnAreaScale*size;
+                        float rOuter = spawnAreaOuterScale*size;
+                        Vector2 dir = Random.insideUnitCircle; dir.Normalize();
+                        Vector2 pos = new Vector2(hw, hh) + dir*(r + Random.Range(0, rOuter));
+                        x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
+                        y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
+                    }
+                    else {
+                        float hw = width*0.5f, hh = height*0.5f;
+                        Vector2 pos = new Vector2(hw, hh) + Random.insideUnitCircle*(spawnAreaScale*Mathf.Min(hw, hh));
+                        x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
+                        y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
+                    }
                     break;
 
                 default:
-                    x = Random.Range(Mathf.RoundToInt((1.0f-spawnOffsetScale)*width), Mathf.RoundToInt(spawnOffsetScale*width));
-                    y = Random.Range(Mathf.RoundToInt((1.0f-spawnOffsetScale)*height), Mathf.RoundToInt(spawnOffsetScale*height));
+                    if(spawnOutside) {
+                        float hw = width*0.5f, hh = height*0.5f;
+
+                        int minX = Mathf.RoundToInt(hw - spawnAreaScale*hw), maxX = Mathf.RoundToInt(hw + spawnAreaScale*width); if(maxX >= width) maxX = width - 1;
+                        int minY = Mathf.RoundToInt(hh - spawnAreaScale*hh), maxY = Mathf.RoundToInt(hh + spawnAreaScale*height); if(maxY >= height) maxY = height - 1;
+
+                        float sumScale = spawnAreaScale+spawnAreaOuterScale;
+                        int minX2 = Mathf.RoundToInt(hw - sumScale*hw), maxX2 = Mathf.RoundToInt(hw + sumScale*width); if(maxX2 >= width) maxX2 = width - 1;
+                        int minY2 = Mathf.RoundToInt(hh - sumScale*hh), maxY2 = Mathf.RoundToInt(hh + sumScale*height); if(maxY2 >= height) maxY2 = height - 1;
+
+                        x = Random.Range(0, 2) == 1 ? Random.Range(minX2, minX+1) : Random.Range(maxX, maxX2+1);
+                        y = Random.Range(0, 2) == 1 ? Random.Range(minY2, minY+1) : Random.Range(maxY, maxY2+1);
+                    }
+                    else {
+                        float hw = width*0.5f, hh = height*0.5f;
+                        int minX = Mathf.RoundToInt(hw - spawnAreaScale*hw), maxX = Mathf.RoundToInt(hw + spawnAreaScale*width); if(maxX >= width) maxX = width - 1;
+                        int minY = Mathf.RoundToInt(hh - spawnAreaScale*hh), maxY = Mathf.RoundToInt(hh + spawnAreaScale*height); if(maxY >= height) maxY = height - 1;
+
+                        x = Random.Range(minX, maxX + 1);
+                        y = Random.Range(minY, maxY + 1);
+                    }
                     break;
             }
         }
-                
-        void PickNeighbor(int x, int y, out int adjX, out int adjY) {
-            float val = mMap[x, y];
+
+        bool IsValid(float[,] map, int x, int y, float val) {
+            if(spawnOutside) {
+                float hw = width*0.5f, hh = height*0.5f;
+
+                switch(spawnArea) {
+                    case Area.Circle:
+                        float r = spawnAreaScale*Mathf.Min(hw, hh);
+                        Vector2 delta = new Vector2(x - hw, y - hh);
+                        if(delta.sqrMagnitude < r*r)
+                            return false;
+                        break;
+                    case Area.Square:
+                        int minX = Mathf.RoundToInt(hw - spawnAreaScale*hw), maxX = Mathf.RoundToInt(hw + spawnAreaScale*width); if(maxX >= width) maxX = width - 1;
+                        int minY = Mathf.RoundToInt(hh - spawnAreaScale*hh), maxY = Mathf.RoundToInt(hh + spawnAreaScale*height); if(maxY >= height) maxY = height - 1;
+
+                        if(x >= minX && x <= maxX && y >= minY && y <= maxY)
+                            return false;
+                        break;
+                }
+            }
+
+            return map[x, y] <= val && (!valueCapToMax || val < valueMax);
+        }
+
+        void PickNeighbor(float[,] map, int x, int y, out int adjX, out int adjY) {
+            float val = map[x, y];
 
             Dir[] mNeighborPicks = new Dir[4];
             int neighborPickCount = 0;
 
             //west
-            if(x > 0 && mMap[x-1, y] <= val) { mNeighborPicks[neighborPickCount] = Dir.West; neighborPickCount++; }
+            if(x > 0 && IsValid(map, x-1, y, val)) { mNeighborPicks[neighborPickCount] = Dir.West; neighborPickCount++; }
             //east
-            if(x < width-1 && mMap[x+1, y] <= val) { mNeighborPicks[neighborPickCount] = Dir.East; neighborPickCount++; }
+            if(x < width-1 && IsValid(map, x+1, y, val)) { mNeighborPicks[neighborPickCount] = Dir.East; neighborPickCount++; }
             //north
-            if(y > 0 && mMap[x, y-1] <= val) { mNeighborPicks[neighborPickCount] = Dir.North; neighborPickCount++; }
+            if(y > 0 && IsValid(map, x, y-1, val)) { mNeighborPicks[neighborPickCount] = Dir.North; neighborPickCount++; }
             //south
-            if(y < height-1 && mMap[x, y+1] <= val) { mNeighborPicks[neighborPickCount] = Dir.South; neighborPickCount++; }
+            if(y < height-1 && IsValid(map, x, y+1, val)) { mNeighborPicks[neighborPickCount] = Dir.South; neighborPickCount++; }
 
             Dir nextDir = neighborPickCount > 0 ? mNeighborPicks[Random.Range(0, neighborPickCount)] : Dir.Invalid;
 
@@ -156,10 +205,10 @@ namespace M8.Noise {
             }
         }
         
-        void Normalize(float maxValue) {
+        void Normalize(float[,] map, float maxValue) {
             for(int y = 0; y < height; y++) {
                 for(int x = 0; x < width; x++) {
-                    mMap[x, y] /= maxValue;
+                    map[x, y] /= maxValue;
                 }
             }
         }
@@ -172,7 +221,5 @@ namespace M8.Noise {
 
             Invalid
         }
-
-        private float[,] mMap;
     }
 }
