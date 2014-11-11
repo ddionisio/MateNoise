@@ -106,14 +106,14 @@ namespace M8.Noise {
                         float size = Mathf.Min(hw, hh);
                         float r = spawnAreaScale*size;
                         float rOuter = spawnAreaOuterScale*size;
-                        Vector2 dir = Random.insideUnitCircle; dir.Normalize();
-                        Vector2 pos = new Vector2(hw, hh) + dir*(r + Random.Range(0, rOuter));
+                        Vector2 dir = new Vector2(M8.Noise.Generate.valueUnit, M8.Noise.Generate.valueUnit); dir.Normalize();
+                        Vector2 pos = new Vector2(hw, hh) + dir*(r + M8.Noise.Generate.Range(0, rOuter));
                         x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
                         y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
                     }
                     else {
                         float hw = width*0.5f, hh = height*0.5f;
-                        Vector2 pos = new Vector2(hw, hh) + Random.insideUnitCircle*(spawnAreaScale*Mathf.Min(hw, hh));
+                        Vector2 pos = new Vector2(hw, hh) + new Vector2(M8.Noise.Generate.valueUnit, M8.Noise.Generate.valueUnit)*(spawnAreaScale*Mathf.Min(hw, hh));
                         x = Mathf.RoundToInt(pos.x); if(x >= width) x = width - 1;
                         y = Mathf.RoundToInt(pos.y); if(y >= height) y = height - 1;
                     }
@@ -130,16 +130,16 @@ namespace M8.Noise {
                         int minX2 = Mathf.RoundToInt(hw - sumScale*hw), maxX2 = Mathf.RoundToInt(hw + sumScale*width); if(maxX2 >= width) maxX2 = width - 1;
                         int minY2 = Mathf.RoundToInt(hh - sumScale*hh), maxY2 = Mathf.RoundToInt(hh + sumScale*height); if(maxY2 >= height) maxY2 = height - 1;
 
-                        x = Random.Range(0, 2) == 1 ? Random.Range(minX2, minX+1) : Random.Range(maxX, maxX2+1);
-                        y = Random.Range(0, 2) == 1 ? Random.Range(minY2, minY+1) : Random.Range(maxY, maxY2+1);
+                        x = M8.Noise.Generate.Range(0, 2) == 1 ? M8.Noise.Generate.Range(minX2, minX+1) : M8.Noise.Generate.Range(maxX, maxX2+1);
+                        y = M8.Noise.Generate.Range(0, 2) == 1 ? M8.Noise.Generate.Range(minY2, minY+1) : M8.Noise.Generate.Range(maxY, maxY2+1);
                     }
                     else {
                         float hw = width*0.5f, hh = height*0.5f;
                         int minX = Mathf.RoundToInt(hw - spawnAreaScale*hw), maxX = Mathf.RoundToInt(hw + spawnAreaScale*width); if(maxX >= width) maxX = width - 1;
                         int minY = Mathf.RoundToInt(hh - spawnAreaScale*hh), maxY = Mathf.RoundToInt(hh + spawnAreaScale*height); if(maxY >= height) maxY = height - 1;
 
-                        x = Random.Range(minX, maxX + 1);
-                        y = Random.Range(minY, maxY + 1);
+                        x = M8.Noise.Generate.Range(minX, maxX + 1);
+                        y = M8.Noise.Generate.Range(minY, maxY + 1);
                     }
                     break;
             }
@@ -184,7 +184,7 @@ namespace M8.Noise {
             //south
             if(y < height-1 && IsValid(map, x, y+1, val)) { mNeighborPicks[neighborPickCount] = Dir.South; neighborPickCount++; }
 
-            Dir nextDir = neighborPickCount > 0 ? mNeighborPicks[Random.Range(0, neighborPickCount)] : Dir.Invalid;
+            Dir nextDir = neighborPickCount > 0 ? mNeighborPicks[M8.Noise.Generate.Range(0, neighborPickCount)] : Dir.Invalid;
 
             switch(nextDir) {
                 case Dir.North:

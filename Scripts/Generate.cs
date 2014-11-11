@@ -35,6 +35,56 @@ namespace M8.Noise {
         const int SEED_NOISE_GEN = 1013;
         const int SHIFT_NOISE_GEN = 8;
 
+        static int mValueCounter = 0;
+
+        /// <summary>
+        /// Return a value within [0, 1], seed is based on Globals.randomSeed
+        /// </summary>
+        public static float value {
+            get {
+                // All constants are primes and must remain prime in order for this noise
+                // function to work correctly.
+                int n = (
+                    X_NOISE_GEN*(mValueCounter++)
+                  + Y_NOISE_GEN*(mValueCounter++)
+                  + Z_NOISE_GEN*(mValueCounter++)
+                  + SEED_NOISE_GEN*Globals.randomSeed)
+                  & 0x7fffffff;
+                n = (n >> 13) ^ n;
+                return ((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff)/2147483647.0f;
+            }
+        }
+
+        /// <summary>
+        /// Return a value within [-1, 1], seed is based on Globals.randomSeed
+        /// </summary>
+        public static float valueUnit {
+            get {
+                // All constants are primes and must remain prime in order for this noise
+                // function to work correctly.
+                int n = (
+                    X_NOISE_GEN*(mValueCounter++)
+                  + Y_NOISE_GEN*(mValueCounter++)
+                  + Z_NOISE_GEN*(mValueCounter++)
+                  + SEED_NOISE_GEN*Globals.randomSeed)
+                  & 0x7fffffff;
+                n = (n >> 13) ^ n;
+                return 1.0f - ((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff)/1073741824.0f;
+            }
+        }
+
+        public static float Range(float min, float max) {
+            return Interpolate.Linear(min, max, value);
+        }
+
+        /// <summary>
+        /// Note: max value is exclusive
+        /// </summary>
+        public static int Range(int min, int max) {
+            int v = Mathf.RoundToInt(Interpolate.Linear((float)min, (float)max, value));
+            return Mathf.Min(v, max - 1);
+        }
+
         /// <summary>
         /// Generates a gradient-coherent-noise value from the coordinates of a
         /// three-dimensional input value. 
